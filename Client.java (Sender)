@@ -1,0 +1,34 @@
+import java.io.*;
+import java.net.*;
+
+public class Client {
+    public static void main(String[] args) {
+        String host = "localhost";
+        int port = 5000;
+
+        try (Socket socket = new Socket(host, port)) {
+
+            File file = new File("send.txt");
+            FileInputStream fis = new FileInputStream(file);
+
+            byte[] fileData = new byte[(int) file.length()];
+            fis.read(fileData);
+            fis.close();
+
+            byte[] encryptedData = AESUtil.encrypt(fileData);
+
+            DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+
+            dos.writeInt(encryptedData.length);
+            dos.write(encryptedData);
+            dos.flush();
+
+            System.out.println("File sent securely!");
+
+            socket.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
